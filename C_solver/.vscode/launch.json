@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "cl.exe build and debug active file",
+        "type": "cppvsdbg",
+        "request": "launch",
+        "program": "${fileDirname}\\out\\${fileBasenameNoExtension}.exe",
+        "args": [""],
+        "stopAtEntry": false,
+        "cwd": "${workspaceFolder}",
+        "environment": [],
+        "terminal.external.windowsExec": "C:\\WINDOWS\\System32\\cmd.exe",
+        "console": "externalTerminal",
+        "preLaunchTask": "cl.exe build active file"
+      }
+    ]
+  }
