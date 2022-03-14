@@ -12,12 +12,12 @@ enum FACE_IDX{
 };
 
 enum COLOR_BITMAP{
-    COL_IDX_WHITE   = 0,        //0b00000000
-    COL_IDX_YELLOW  = 1,        //0b00000001
-    COL_IDX_ORANGE  = 2,        //0b00000010
-    COL_IDX_RED     = 3,        //0b00000011
-    COL_IDX_BLUE    = 4,        //0b00000100
-    COL_IDX_GREEN   = 5,        //0b00000101
+    COL_IDX_WHITE   = 0,        //0b00000000  0x00
+    COL_IDX_YELLOW  = 1,        //0b00000001  0x01
+    COL_IDX_ORANGE  = 2,        //0b00000010  0x02
+    COL_IDX_RED     = 3,        //0b00000011  0x03
+    COL_IDX_BLUE    = 4,        //0b00000100  0x04
+    COL_IDX_GREEN   = 5,        //0b00000101  0x05
 };
 
 const char cColor[6] = "WYORBG";
