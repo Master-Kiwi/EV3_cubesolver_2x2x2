@@ -193,14 +193,15 @@ def main():
     scanned_rcube_json_file = timestr + '_scanned.json'
     scanned_cube.save_to_file(scanned_rcube_json_file)
 
+
+
+    """
     #ascii conversion to style "WWWW-YYYY-OOOO-RRRR-BBBB-GGGG", better use flat facemap
     #side order U-D-F-B-R-L as read from get_facemap()
     flat_facemap = scanned_cube.get_facemap(flatten=True)
     #cube_data_string = "WWWW-YYYY-OOOO-RRRR-BBBB-GGGG"
     cube_data_string = facemap_to_ascii(flat_facemap)
     print("Solver Argument: \"%s\" " %cube_data_string)
-    
-    
 
     working_dir_restore()
 
@@ -224,10 +225,9 @@ def main():
     print("Rx %d characters on stdout" % len(process.stdout))
     print(process.stdout)
     
-
-    
     print("Execute Solver Algo on Machine")
     time.sleep(0.5)
+    """
     
     print("-----Programm Exit---------")
 

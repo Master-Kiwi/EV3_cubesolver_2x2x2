@@ -64,30 +64,39 @@ side_dict = {
 
 ACT_IDX_U_CW  = 0
 ACT_IDX_U_CCW = 3
+ACT_IDX_U2    = 6
 ACT_IDX_R_CW  = 1
 ACT_IDX_R_CCW = 4
+ACT_IDX_R2    = 7
 ACT_IDX_F_CW  = 2
 ACT_IDX_F_CCW = 5
+ACT_IDX_F2    = 9
 
 
 #self.action_dict lists all possible actions, key=action_idx
 action_dict_short = { 
     ACT_IDX_U_CW:   "U ",
     ACT_IDX_U_CCW:  "U'",
+    ACT_IDX_U2:     "U2",
     ACT_IDX_R_CW:   "R ",
     ACT_IDX_R_CCW:  "R'",
+    ACT_IDX_R2:     "R2",
     ACT_IDX_F_CW:   "F ",
     ACT_IDX_F_CCW:  "F'",
+    ACT_IDX_F2:     "F2",
 }
 
 #self.action_dict lists all possible actions, key=action_idx
 action_dict = { 
-    ACT_IDX_U_CW:   "ROTATE UP    / CW",
+    ACT_IDX_U_CW:   "ROTATE UP    / CW ",
     ACT_IDX_U_CCW:  "ROTATE UP    / CCW",
-    ACT_IDX_R_CW:   "ROTATE RIGHT / CW",
+    ACT_IDX_U2:     "ROTATE UP    / 2x ",
+    ACT_IDX_R_CW:   "ROTATE RIGHT / CW ",
     ACT_IDX_R_CCW:  "ROTATE RIGHT / CCW",
-    ACT_IDX_F_CW:   "ROTATE FRONT / CW",
+    ACT_IDX_R2:     "ROTATE RIGHT / 2x ",
+    ACT_IDX_F_CW:   "ROTATE FRONT / CW ",
     ACT_IDX_F_CCW:  "ROTATE FRONT / CCW",
+    ACT_IDX_F2:     "ROTATE FRONT / 2x ",
 }
 
 class tRubikCube:
@@ -288,10 +297,13 @@ class tRubikCube:
 
     #helper for finding the inverse action (TOP/CW --> TOP/CCW)
     def inverse_action(self, action):
-        if action < 3:
-            return (action + 3)
-        elif action >= 3 and action < self.num_actions():
-            return (action - 3)
+        if action < 3:   
+            return (action + 3)         #CW > CCW
+        elif (action >= 3) and (action < 6):
+            return (action - 3)         #CCW > CW
+        else:
+            return (action)             #2x unchanged - half turn metric
+
 
     #returns the inverse actions list
     def get_inverse_action_list(self):
@@ -302,7 +314,7 @@ class tRubikCube:
 
     #returns the total number of applicable actions
     def num_actions(self):
-        return(6)
+        return(9)
 
     #empties the action list
     def clear_action_list(self):
@@ -325,15 +337,24 @@ class tRubikCube:
         if(len(szText) > 0): 
             print("%s" % szText[:-2], end="\n") #skip last 2 items           
 
-
     #simple actions, less math, less if/else
     def actions_simple(self, action):
-        if action==0:         self.rotate_simple(SIDE_IDX_UP,    ROT_DIR_CW)
-        elif action==3:       self.rotate_simple(SIDE_IDX_UP,    ROT_DIR_CCW)
-        elif action==1:       self.rotate_simple(SIDE_IDX_RIGHT, ROT_DIR_CW)
-        elif action==4:       self.rotate_simple(SIDE_IDX_RIGHT, ROT_DIR_CCW)
-        elif action==2:       self.rotate_simple(SIDE_IDX_FRONT, ROT_DIR_CW)
-        elif action==5:       self.rotate_simple(SIDE_IDX_FRONT, ROT_DIR_CCW)
+        if action==ACT_IDX_U_CW:          self.rotate_simple(SIDE_IDX_UP,    ROT_DIR_CW)
+        elif action==ACT_IDX_U_CCW:       self.rotate_simple(SIDE_IDX_UP,    ROT_DIR_CCW)
+        elif action==ACT_IDX_U2:       
+            self.rotate_simple(SIDE_IDX_UP,    ROT_DIR_CCW)
+            self.rotate_simple(SIDE_IDX_UP,    ROT_DIR_CCW)        
+        elif action==ACT_IDX_R_CW:       self.rotate_simple(SIDE_IDX_RIGHT, ROT_DIR_CW)
+        elif action==ACT_IDX_R_CCW:       self.rotate_simple(SIDE_IDX_RIGHT, ROT_DIR_CCW)
+        elif action==ACT_IDX_R2:       
+            self.rotate_simple(SIDE_IDX_RIGHT, ROT_DIR_CCW)
+            self.rotate_simple(SIDE_IDX_RIGHT, ROT_DIR_CCW)
+        elif action==ACT_IDX_F_CW:       self.rotate_simple(SIDE_IDX_FRONT, ROT_DIR_CW)
+        elif action==ACT_IDX_F_CCW:       self.rotate_simple(SIDE_IDX_FRONT, ROT_DIR_CCW)
+        elif action==ACT_IDX_F2:       
+            self.rotate_simple(SIDE_IDX_FRONT, ROT_DIR_CCW)
+            self.rotate_simple(SIDE_IDX_FRONT, ROT_DIR_CCW)
+
         else: return
         #append 
         self.actions_list.append(action)
