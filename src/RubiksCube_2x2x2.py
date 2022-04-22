@@ -70,7 +70,7 @@ ACT_IDX_R_CCW = 4
 ACT_IDX_R2    = 7
 ACT_IDX_F_CW  = 2
 ACT_IDX_F_CCW = 5
-ACT_IDX_F2    = 9
+ACT_IDX_F2    = 8
 
 
 #self.action_dict lists all possible actions, key=action_idx
@@ -138,55 +138,104 @@ class tRubikCube:
 
   
   
-    def print_2d(self):
-        ilen = 3  #a cube side col block has a len of 3
-        print('', end='\n')
-        self._print_blocks(COL_IDX_BLACK, ilen*((self.N_DIM*4+5)))    #fill first line
+    def print_2d(self, compact=False):
+        ilen = 2  #a cube side col block has a len of 3
+        if(not compact):
+            print('', end='\n')
+            self._print_blocks(COL_IDX_BLACK, ilen*((self.N_DIM*4+5)))    #fill first line
 
         for i in range (self.N_DIM):
             print('', end='\n')
-            self._print_blocks(COL_IDX_BLACK, ilen*(self.N_DIM+2))
+            if(not compact):
+                self._print_blocks(COL_IDX_BLACK, ilen*(self.N_DIM+2))
+            else:
+                self._print_blocks(COL_IDX_BLACK, ilen*self.N_DIM + 1)
+            
             for j in range (self.N_DIM):
                 self._print_blocks(self.col[SIDE_IDX_BACK][i][j], ilen)
-            self._print_blocks(COL_IDX_BLACK, ilen*((self.N_DIM*2+3)))
+            
+            if(not compact):
+                self._print_blocks(COL_IDX_BLACK, ilen*((self.N_DIM*2+3)))
+            else:
+                self._print_blocks(COL_IDX_BLACK, ilen*self.N_DIM*2 + 1)
 
-        print('', end='\n')
-        self._print_blocks(COL_IDX_BLACK, ilen*((self.N_DIM*4+5)))    #fill seperator back/top
+       
+        if(not compact):
+            print('', end='\n')
+            self._print_blocks(COL_IDX_BLACK, ilen*((self.N_DIM*4+5)))    #fill seperator back/top
 
         for i in range (self.N_DIM):
             print('', end='\n')
-            self._print_blocks(COL_IDX_BLACK, ilen)
+            if(not compact):
+                self._print_blocks(COL_IDX_BLACK, ilen)
+            else:
+                self._print_blocks(COL_IDX_BLACK, 1)
+
 
             for j in range (self.N_DIM):
                 self._print_blocks(self.col[SIDE_IDX_LEFT][i][j], ilen)
             
-            self._print_blocks(COL_IDX_BLACK, ilen)
+            if(not compact):
+                self._print_blocks(COL_IDX_BLACK, ilen)
             for j in range (self.N_DIM):
                 self._print_blocks(self.col[SIDE_IDX_UP][i][j], ilen)
             
-            self._print_blocks(COL_IDX_BLACK, ilen)      
+            if(not compact):
+                self._print_blocks(COL_IDX_BLACK, ilen)      
             for j in range (self.N_DIM):
                 self._print_blocks(self.col[SIDE_IDX_RIGHT][i][j], ilen)
             
-            self._print_blocks(COL_IDX_BLACK, ilen)
+            if(not compact):
+                self._print_blocks(COL_IDX_BLACK, ilen)
             for j in range (self.N_DIM):
                 self._print_blocks(self.col[SIDE_IDX_DOWN][i][j], ilen)
 
-            self._print_blocks(COL_IDX_BLACK, ilen)   #fill last row
+            if(not compact):
+                self._print_blocks(COL_IDX_BLACK, ilen)   #fill last row
+            else:
+                self._print_blocks(COL_IDX_BLACK, 1)
 
-        print('', end='\n')
-        self._print_blocks(COL_IDX_BLACK, ilen*((self.N_DIM*4+5)))  #fill seperator top/front
+        if(not compact):
+            print('', end='\n')
+            self._print_blocks(COL_IDX_BLACK, ilen*((self.N_DIM*4+5)))  #fill seperator top/front
 
         for i in range (self.N_DIM):
             print('', end='\n')
-            self._print_blocks(COL_IDX_BLACK, ilen*(self.N_DIM+2))
+            if(not compact):
+                self._print_blocks(COL_IDX_BLACK, ilen*(self.N_DIM+2))
+            else:
+                self._print_blocks(COL_IDX_BLACK, ilen*self.N_DIM + 1)
+
             for j in range (self.N_DIM):
                 self._print_blocks(self.col[SIDE_IDX_FRONT][i][j], ilen)        
-            self._print_blocks(COL_IDX_BLACK, ilen*((self.N_DIM*2+3)))
+            
+            if(not compact):
+                self._print_blocks(COL_IDX_BLACK, ilen*((self.N_DIM*2+3)))
+            else:
+                self._print_blocks(COL_IDX_BLACK, ilen*self.N_DIM*2 + 1 )
 
-        print('', end='\n')
-        self._print_blocks(COL_IDX_BLACK, ilen*((self.N_DIM*4+5))) #fill last line
+        if(not compact):
+            print('', end='\n')
+            self._print_blocks(COL_IDX_BLACK, ilen*((self.N_DIM*4+5))) #fill last line
         print('', end='\n')    
+
+
+    #random shuffle the cube, return the shuffle sequence
+    def shuffle(self, num_rotations=500):
+        random.seed()
+        actions = []
+        for _ in range (num_rotations):
+            action=random.randrange(0, self.num_actions()-1)    #action_idx 0 to num-1
+            self.actions_simple(action)
+        
+        actions = self.get_action_list()
+        self.clear_action_list()
+
+        return(actions)
+
+   
+
+
 
     #get a copy from the action list
     #optional add parameter <notation> to get Text instead of numbers
@@ -295,6 +344,47 @@ class tRubikCube:
                 #self.col[SIDE_IDX_LEFT][2][1]   = mem_side_top[1]
                 self.col[SIDE_IDX_LEFT][1]      = mem_side_top
 
+    #turn the whole rubikscube around the X-axis (left-to-right axis / horizontal axis)
+    #CW = front to up
+    #CCW = front to down
+    def X_turn(self, direction, num_rot):
+        #if(direction == "CW"):       #front to up
+            
+
+        #if(direction == "CCW"):       #front to up
+        
+        return
+
+    #turn the whole rubikscube around the Y-axis (down-to-up axis / vertical axis)
+    #CW =  front to left
+    #CCW = front to right
+    def Y_turn(self, direction, num_rot):    
+        for i in range(num_rot):
+            mem_side_front = self.col[SIDE_IDX_FRONT]
+            if(direction == "CW"): 
+                self.col[SIDE_IDX_FRONT] = self.col[SIDE_IDX_RIGHT]
+                self.col[SIDE_IDX_RIGHT] = self.col[SIDE_IDX_BACK]
+                self.col[SIDE_IDX_BACK] = self.col[SIDE_IDX_LEFT]
+                self.col[SIDE_IDX_LEFT] = mem_side_front
+            if(direction == "CCW"): 
+                self.col[SIDE_IDX_FRONT] = self.col[SIDE_IDX_LEFT]
+                self.col[SIDE_IDX_LEFT] = self.col[SIDE_IDX_BACK]
+                self.col[SIDE_IDX_BACK] = self.col[SIDE_IDX_RIGHT]
+                self.col[SIDE_IDX_LEFT] = mem_side_front
+                
+                
+                
+
+
+        return
+    
+    #turn the whole rubikscube around the Z-Axis (front-to-back axis )
+    #CW =  up to right
+    #CCW = up to left
+    def Z_turn(self, direction, num_rot):   
+
+        return
+
     #helper for finding the inverse action (TOP/CW --> TOP/CCW)
     def inverse_action(self, action):
         if action < 3:   
@@ -304,13 +394,21 @@ class tRubikCube:
         else:
             return (action)             #2x unchanged - half turn metric
 
-
-    #returns the inverse actions list
-    def get_inverse_action_list(self):
-        conj_actions_list = []
-        for action in self.actions_list:
-            conj_actions_list.append(self.inverse_action(action))
-        return (conj_actions_list)
+    
+    def get_inverse_action_list(self, action_sequence):
+        """
+        this is useful to yield the solution sequence from the scrambling sequence
+        :param      action_sequence:    array[n], contents defined in act_dict eg. scrambling sequence from shuffle() 
+                                        None, action list is taken from self.actions_list            
+        :returns    inverted sequence:  
+        """    
+        if action_sequence is None: action_sequence = self.actions_list.copy()
+        inverse_actions_list = []
+        for action in action_sequence:
+            inverse_actions_list.append(self.inverse_action(action))
+        
+        inverse_actions_list.reverse()    #revert the element order        
+        return (inverse_actions_list) 
 
     #returns the total number of applicable actions
     def num_actions(self):
@@ -320,11 +418,15 @@ class tRubikCube:
     def clear_action_list(self):
         self.actions_list.clear()     
   
-    #print readable action list in short notation U / U'
-    def print_action_list(self, max_line_len=100):
+    
+    def print_action_list(self, action_list, max_line_len=100):
+        """
+        print readable action list in short notation U / U'
+        """    
+        if action_list is None: action_list = self.get_action_list()
         szText = ""
         cnt = 0
-        for action in self.get_action_list():
+        for action in action_list:
             szNew = "%s, " % action_dict_short[action]
             szText += szNew
             cnt += len(szNew)   #increment by len of added string
@@ -336,6 +438,17 @@ class tRubikCube:
         #print remaining 
         if(len(szText) > 0): 
             print("%s" % szText[:-2], end="\n") #skip last 2 items           
+    
+    def execute_sequence(self, actions_sequence):
+        """
+        execute a sequence of actions
+        :param      actions_sequence: action index as defined inf act_dict
+        :return     None
+        """
+        if actions_sequence is None: return
+        for action in actions_sequence:
+            self.actions_simple(action)
+
 
     #simple actions, less math, less if/else
     def actions_simple(self, action):
@@ -344,12 +457,12 @@ class tRubikCube:
         elif action==ACT_IDX_U2:       
             self.rotate_simple(SIDE_IDX_UP,    ROT_DIR_CCW)
             self.rotate_simple(SIDE_IDX_UP,    ROT_DIR_CCW)        
-        elif action==ACT_IDX_R_CW:       self.rotate_simple(SIDE_IDX_RIGHT, ROT_DIR_CW)
+        elif action==ACT_IDX_R_CW:        self.rotate_simple(SIDE_IDX_RIGHT, ROT_DIR_CW)
         elif action==ACT_IDX_R_CCW:       self.rotate_simple(SIDE_IDX_RIGHT, ROT_DIR_CCW)
         elif action==ACT_IDX_R2:       
             self.rotate_simple(SIDE_IDX_RIGHT, ROT_DIR_CCW)
             self.rotate_simple(SIDE_IDX_RIGHT, ROT_DIR_CCW)
-        elif action==ACT_IDX_F_CW:       self.rotate_simple(SIDE_IDX_FRONT, ROT_DIR_CW)
+        elif action==ACT_IDX_F_CW:        self.rotate_simple(SIDE_IDX_FRONT, ROT_DIR_CW)
         elif action==ACT_IDX_F_CCW:       self.rotate_simple(SIDE_IDX_FRONT, ROT_DIR_CCW)
         elif action==ACT_IDX_F2:       
             self.rotate_simple(SIDE_IDX_FRONT, ROT_DIR_CCW)
@@ -479,17 +592,22 @@ class tRubikCube:
         if location: return corner_block[location]
         return corner_block
 
-    #checks if cube is solved (each side has 4 identical colors, do not care about the side position )
+    
     def done(self):
+        """
+        checks if cube is solved 
+        condition: each side has 4 identical colors
+        do not care about the side position
+        :return:    True if solved
+        """
         results = []
         for side in self.col:
             col = side[0][0]            #color of first block
-            comp = (side == col)        #numpy array compare returns N_DIM * N_DIM bools [True, false][True, false]
+            comp = (side == col)        #numpy array compare returns N_DIM * N_DIM bools eg: [True, false][True, false]
             result = np.all(comp)       #test if all elements are true - return single value, True means all colors identical on this side
             results.append(result)      
-        final_result = np.all(results)  
-        #print(results)
-        print(final_result)
+        final_result = np.all(results)  #check that all faces are solved
+        #print(final_result)
         return(final_result)
 
     
@@ -529,23 +647,19 @@ class tRubikCube:
 
         #final result: all corner results must be true
         final_result = np.all(corner_result)
-        print("final result: " + str(final_result))
+        #print("final result: " + str(final_result))
         return(final_result)
-
-#key=side index
-#side_dict = {
-#    SIDE_IDX_UP     : "up",
-#    SIDE_IDX_DOWN   : "down",
-#    SIDE_IDX_FRONT  : "front",
-#    SIDE_IDX_BACK   : "back",
-#   SIDE_IDX_LEFT   : "left",
-#    SIDE_IDX_RIGHT  : "right"
-#}    
-    #
     
-    def set_side(self, side_idx, col_data):
-        self.col[side_idx] = col_data.copy()
-        return
+    
+    def set_side(self, side_idx, face_data):
+        """
+        set one face of the cube to color
+        :param      side_idx:     0 to 6 (defined in side_dict)
+                    face_data:    array[n][n], content 0 to 6 (defined in color_dict)
+        :return     None
+        """        
+        self.col[side_idx] = face_data.copy()
+
     
     def get_facemap(self, flatten = False):
         if flatten == False:
@@ -554,6 +668,11 @@ class tRubikCube:
             return deepcopy(self.col.flatten(order = "C"))
 
     def set_facemap(self, rcube_facemap):
+        """
+        set all faces face of the cube to given data
+        :param      rcube_facemap: array[6][n_col][n_row], content 0 to 6 (defined in color_dict)
+        :return     None
+        """
         self.col = deepcopy(rcube_facemap)
 
 def main():
@@ -581,17 +700,30 @@ def main():
 
     test_cube = tRubikCube()
     #rotate the test cube
-    test_cube.col[0] = 5
-    test_cube.col[1] = 4
-    test_cube.col[2] = 2
-    test_cube.col[3] = 3
-    test_cube.col[4] = 0
-    test_cube.col[5] = 1
+    #test_cube.col[0] = 5
+    #test_cube.col[1] = 4
+    #test_cube.col[2] = 2
+    #test_cube.col[3] = 3
+    #test_cube.col[4] = 0
+    #test_cube.col[5] = 1
     corners = test_cube.get_corner(sort = True)
     print(corners)
     test_cube.self_test()
-    test_cube.print_2d()
+    #test_cube.print_2d()
 
+    test_cube = tRubikCube()
+    test_cube.print_2d(compact = True)
+    test_cube.Y_turn("CW", 1)
+    test_cube.print_2d(compact = True)
+
+    test_cube = tRubikCube()
+    test_cube.Y_turn("CCW", 1)
+    test_cube.print_2d(compact = True)
+    
+
+    scrambled_cube = tRubikCube()
+    scrambled_cube.shuffle(num_rotations=100)
+    #scrambled_cube.BFS(depth =2)
 
     exit()
 
@@ -650,3 +782,5 @@ def main():
 
 if __name__=="__main__":
   main()
+
+

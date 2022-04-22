@@ -4,7 +4,7 @@ import time
 #import numpy as np
 import subprocess
 import shlex
-
+import datetime
 
 from copy import copy, deepcopy
 from RubiksCube_2x2x2 import tRubikCube
@@ -14,6 +14,7 @@ from helpers import *
 from camera import Camera_Init, Camera_Close, Capture_to_File, working_dir_save, working_dir_restore
 from color_decode import cube_image_to_hsv, hsv_to_color
 from array_funcs import flat_to_3d, face_remap, flat_facemap_insert, facemap_to_ascii
+from iterate_tools import tIterate
 
 EV3_mac_address = '00:16:53:46:E9:BB'
 
@@ -154,6 +155,7 @@ def Cube_Scan(pic_directory):
 
     return (cube_scan_pics, timestr)
 
+
 def main():
     console_clear()
     console_color_enable()
@@ -194,6 +196,23 @@ def main():
     scanned_cube.save_to_file(scanned_rcube_json_file)
 
 
+    scrambled_cube = tRubikCube()
+    shuffle_sequence = scrambled_cube.shuffle(100)
+    solution_sequence = scrambled_cube.get_inverse_action_list(shuffle_sequence)
+    print("Shuffle Sequence[%d]: %s\n\rSolution Sequence[%d]: %s " %(len(shuffle_sequence), shuffle_sequence, len(solution_sequence), solution_sequence))
+    scrambled_cube.print_2d(compact=True)
+    
+    #scrambled_cube.execute_sequence(solution_sequence)
+    scrambled_cube.print_2d(compact=True)
+    
+    max_depth = 8
+    for depth in range(max_depth):
+        solved, solved_cube = DFS(scrambled_cube, depth)
+        if(solved): 
+            print("Solution found")
+            solved_cube.print_2d()
+            break
+
 
     """
     #ascii conversion to style "WWWW-YYYY-OOOO-RRRR-BBBB-GGGG", better use flat facemap
@@ -232,6 +251,72 @@ def main():
     print("-----Programm Exit---------")
 
     exit()
+
+def DFS(scrambled_cube, depth=1):
+    
+    if(scrambled_cube.done()): return(True, scrambled_cube)
+
+    num_actions = scrambled_cube.num_actions()
+
+    iter_per_sec = 5000 #approx
+    skipped_iter_steps = 0
+
+
+    test_iterator = tIterate(depth, num_actions, 0)
+    iter_steps    = test_iterator.get_total_num()
+    iter_func     = test_iterator.generator()
+    print("\nIteration Depth:   %d" %depth, end= "")
+    print("  Num_Actions:       %d" %num_actions, end="")
+    print("  Num_Iterations:    %d" %iter_steps)
+    time_to_completion = float(iter_steps / iter_per_sec)
+    start = datetime.datetime.now()
+
+    iter_last = 0
+    solved = False
+    for iter in range(iter_steps):
+        #iteration_step = seq_iterator.next()      #get next sequence
+        iteration_step = next(iter_func).copy()           #using generator is faster
+        test_cube = deepcopy(scrambled_cube)
+        test_cube.execute_sequence(iteration_step)
+        if(test_cube.done()):
+            solved = True
+            return (solved, test_cube)
+        
+        #is a single side solved?
+        import numpy as np
+        facemap = test_cube.get_facemap()
+        results = []
+        for side in facemap:
+            col = side[0][0]            #color of first block
+            comp = (side == col)        #numpy array compare returns N_DIM * N_DIM bools eg: [True, false][True, false]
+            result = np.all(comp)       #test if all elements are true - return single value, True means all colors identical on this side
+            if result : 
+                solved = True
+                return (solved, test_cube)
+
+        #subtraction is faster then modulo operation, adapt to CPU-speed or use modulo, will be true approx each second, will not ouput on fast runs, module will fire on start
+        #combine modulo and estimated iter_per_sec, this will be true approx each second or each % of completion
+        itercnt = iter-iter_last
+
+        #if (itercnt >= iter_per_sec):  
+        #if (itercnt >= iter_per_sec) or (iter % (int(iter_steps/100)+1) == 0):  
+        if (itercnt >= iter_per_sec) or not (iter % (int(iter_steps/100)+1)):  
+            iter_last = iter
+            actual = datetime.datetime.now()
+            actual_delta = actual-start
+            actual_delta = actual_delta.total_seconds() 
+            if(actual_delta > 0.0) and (iter > 0):
+                iter_per_sec = iter / actual_delta
+                progress = 100.0*iter/iter_steps
+                remaining = iter_steps-iter
+                time_to_completion = remaining / iter_per_sec
+                print("\r[Progress=%.3f%%  iter=%s/%s  iter/sec=%s  remain=%s  skip=%s ]         " % 
+                    (progress, num_to_str_si(iter), num_to_str_si(iter_steps), num_to_str_si(iter_per_sec),  
+                    sec_to_str(time_to_completion), num_to_str_si(skipped_iter_steps)  ), 
+                    end='', flush=True)
+
+    
+    return (solved, scrambled_cube)
 
 if __name__=="__main__":
     main()
