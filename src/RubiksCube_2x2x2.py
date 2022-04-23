@@ -348,31 +348,62 @@ class tRubikCube:
     #CW = front to up
     #CCW = front to down
     def X_turn(self, direction, num_rot):
-        #if(direction == "CW"):       #front to up
+        for _ in range(num_rot):
+            #down side needs always 180° rot due to array indizes 
+            self._rotate_side(SIDE_IDX_DOWN, ROT_DIR_CCW)
+            self._rotate_side(SIDE_IDX_DOWN, ROT_DIR_CCW)
+            mem_face = self.col[SIDE_IDX_UP].copy()
             
+            if(direction == "CW"):       #front to up
+                self._rotate_side(SIDE_IDX_LEFT, ROT_DIR_CCW)
+                self._rotate_side(SIDE_IDX_RIGHT, ROT_DIR_CW)
+                self.col[SIDE_IDX_UP] = self.col[SIDE_IDX_FRONT].copy()
+                self.col[SIDE_IDX_FRONT] = self.col[SIDE_IDX_DOWN].copy()
+                self.col[SIDE_IDX_DOWN] = self.col[SIDE_IDX_BACK].copy()
+                self.col[SIDE_IDX_BACK] = mem_face.copy()
+            if(direction == "CCW"):       #front to down
+                self._rotate_side(SIDE_IDX_LEFT, ROT_DIR_CW)
+                self._rotate_side(SIDE_IDX_RIGHT, ROT_DIR_CCW)
+                self.col[SIDE_IDX_UP] = self.col[SIDE_IDX_BACK].copy()
+                self.col[SIDE_IDX_BACK] = self.col[SIDE_IDX_DOWN].copy()
+                self.col[SIDE_IDX_DOWN] = self.col[SIDE_IDX_FRONT].copy()
+                self.col[SIDE_IDX_FRONT] = mem_face.copy()
 
-        #if(direction == "CCW"):       #front to up
-        
+            self._rotate_side(SIDE_IDX_DOWN, ROT_DIR_CCW)
+            self._rotate_side(SIDE_IDX_DOWN, ROT_DIR_CCW)
+
         return
 
     #turn the whole rubikscube around the Y-axis (down-to-up axis / vertical axis)
     #CW =  front to left
     #CCW = front to right
     def Y_turn(self, direction, num_rot):    
-        for i in range(num_rot):
-            mem_side_front = self.col[SIDE_IDX_FRONT]
+        for _ in range(num_rot):
+            mem_face = self.col[SIDE_IDX_FRONT].copy()
+            #adjacent faces to Up need always 90° rot due to array indizes
             if(direction == "CW"): 
-                self.col[SIDE_IDX_FRONT] = self.col[SIDE_IDX_RIGHT]
-                self.col[SIDE_IDX_RIGHT] = self.col[SIDE_IDX_BACK]
-                self.col[SIDE_IDX_BACK] = self.col[SIDE_IDX_LEFT]
-                self.col[SIDE_IDX_LEFT] = mem_side_front
+                self._rotate_side(SIDE_IDX_UP, ROT_DIR_CW)
+                self._rotate_side(SIDE_IDX_DOWN, ROT_DIR_CCW)
+                self.col[SIDE_IDX_FRONT] = self.col[SIDE_IDX_RIGHT].copy()
+                self._rotate_side(SIDE_IDX_FRONT, ROT_DIR_CW)
+                self.col[SIDE_IDX_RIGHT] = self.col[SIDE_IDX_BACK].copy()
+                self._rotate_side(SIDE_IDX_RIGHT, ROT_DIR_CW)
+                self.col[SIDE_IDX_BACK] = self.col[SIDE_IDX_LEFT].copy()
+                self._rotate_side(SIDE_IDX_BACK, ROT_DIR_CW)
+                self.col[SIDE_IDX_LEFT] = mem_face.copy()
+                self._rotate_side(SIDE_IDX_LEFT, ROT_DIR_CW)
+
             if(direction == "CCW"): 
-                self.col[SIDE_IDX_FRONT] = self.col[SIDE_IDX_LEFT]
-                self.col[SIDE_IDX_LEFT] = self.col[SIDE_IDX_BACK]
-                self.col[SIDE_IDX_BACK] = self.col[SIDE_IDX_RIGHT]
-                self.col[SIDE_IDX_LEFT] = mem_side_front
-                
-                
+                self._rotate_side(SIDE_IDX_UP, ROT_DIR_CCW)
+                self._rotate_side(SIDE_IDX_DOWN, ROT_DIR_CW)
+                self.col[SIDE_IDX_FRONT] = self.col[SIDE_IDX_LEFT].copy()
+                self._rotate_side(SIDE_IDX_FRONT, ROT_DIR_CCW)
+                self.col[SIDE_IDX_LEFT] = self.col[SIDE_IDX_BACK].copy()
+                self._rotate_side(SIDE_IDX_LEFT, ROT_DIR_CCW)
+                self.col[SIDE_IDX_BACK] = self.col[SIDE_IDX_RIGHT].copy()
+                self._rotate_side(SIDE_IDX_BACK, ROT_DIR_CCW)
+                self.col[SIDE_IDX_RIGHT] = mem_face.copy()
+                self._rotate_side(SIDE_IDX_RIGHT, ROT_DIR_CCW)
                 
 
 
@@ -382,7 +413,25 @@ class tRubikCube:
     #CW =  up to right
     #CCW = up to left
     def Z_turn(self, direction, num_rot):   
+        for _ in range(num_rot):
+            mem_face = self.col[SIDE_IDX_UP].copy()
+            if(direction == "CW"): 
+                self._rotate_side(SIDE_IDX_FRONT, ROT_DIR_CW)
+                self._rotate_side(SIDE_IDX_BACK, ROT_DIR_CCW)
 
+                self.col[SIDE_IDX_UP] = self.col[SIDE_IDX_LEFT].copy()
+                self.col[SIDE_IDX_LEFT] = self.col[SIDE_IDX_DOWN].copy()
+                self.col[SIDE_IDX_DOWN] = self.col[SIDE_IDX_RIGHT].copy()
+                self.col[SIDE_IDX_RIGHT] = mem_face.copy()
+
+            if(direction == "CCW"): 
+                self._rotate_side(SIDE_IDX_FRONT, ROT_DIR_CCW)
+                self._rotate_side(SIDE_IDX_BACK, ROT_DIR_CW)
+
+                self.col[SIDE_IDX_UP] = self.col[SIDE_IDX_RIGHT].copy()
+                self.col[SIDE_IDX_RIGHT] = self.col[SIDE_IDX_DOWN].copy()
+                self.col[SIDE_IDX_DOWN] = self.col[SIDE_IDX_LEFT].copy()
+                self.col[SIDE_IDX_LEFT] = mem_face.copy()
         return
 
     #helper for finding the inverse action (TOP/CW --> TOP/CCW)
@@ -711,16 +760,44 @@ def main():
     test_cube.self_test()
     #test_cube.print_2d()
 
-    test_cube = tRubikCube()
-    test_cube.print_2d(compact = True)
-    test_cube.Y_turn("CW", 1)
-    test_cube.print_2d(compact = True)
-
-    test_cube = tRubikCube()
-    test_cube.Y_turn("CCW", 1)
-    test_cube.print_2d(compact = True)
     
+    """
+    test_cube = tRubikCube()
+    test_cube.col[SIDE_IDX_RIGHT][0][0]=6
+    test_cube.col[SIDE_IDX_LEFT][0][0]=6
+    #test_cube.col[SIDE_IDX_BACK][0][0]=6
+    test_cube.print_2d(compact = True)
+    for _ in range(3):
+        test_cube.X_turn("CW", 1)   #hold cube at left/right center and turn
+        test_cube.print_2d(compact = True)
+    """
+    
+    """
+    test_cube = tRubikCube()
+    #test_cube.col[SIDE_IDX_UP][0][0]=6
+    #test_cube.col[SIDE_IDX_DOWN][0][0]=6
+    test_cube.col[SIDE_IDX_RIGHT][0][1]=6
+    test_cube.col[SIDE_IDX_LEFT][0][1]=6
+    test_cube.col[SIDE_IDX_FRONT][0][0]=6
+    test_cube.col[SIDE_IDX_BACK][0][0]=6
+    test_cube.print_2d(compact = True)
+    for _ in range(3):
+        test_cube.Y_turn("CCW", 1)  #hold cube at up/down center and turn
+        test_cube.print_2d(compact = True)
+    """
 
+    test_cube = tRubikCube()
+    test_cube.col[SIDE_IDX_UP][0][0]=6
+    test_cube.col[SIDE_IDX_DOWN][0][0]=6
+    test_cube.col[SIDE_IDX_RIGHT][0][0]=6
+    test_cube.col[SIDE_IDX_LEFT][0][0]=6
+    test_cube.col[SIDE_IDX_FRONT][0][0]=-1
+    test_cube.col[SIDE_IDX_BACK][0][0]=-1
+    test_cube.print_2d(compact = True)
+    for _ in range(3):
+        test_cube.Z_turn("CW", 1)   #hold cube at front/back center and turn
+        test_cube.print_2d(compact = True)    
+    
     scrambled_cube = tRubikCube()
     scrambled_cube.shuffle(num_rotations=100)
     #scrambled_cube.BFS(depth =2)

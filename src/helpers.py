@@ -156,6 +156,18 @@ def blink_line(text_line, count, blink_time):
     time.sleep(blink_time)
   print("")
 
+def console_set_cursor(x,y):
+  """
+  moves console cursor to given position, top-left is 0/0
+  """
+  #control sequence position ist 1-based, (top-left has index 1/1)
+  x += 1
+  y += 1
+  CSI = '\x1b['
+  fmt_str = CSI+str(y)+';'+str(x)+'H'
+  print(fmt_str, end="")
+  return
+
 #enabled parsing of Ansi-Strings in console (colored outputs)
 def console_color_enable():
   #needs only to be enabled on windows platform
@@ -170,7 +182,18 @@ def main():
 
   #needs only to be enabled on windows platform
   console_color_enable()
+  console_clear()
+  console_set_cursor(5,1)
+  print("Hello > moved")
+  console_set_cursor(10, 2)
+  print("Hello > moved")
+  console_set_cursor(0,0)
+  print("Hello > moved")
 
+  console_set_cursor(0,20)
+
+  console_set_cursor(0,5)
+  
   console_print_color_table()
   blink_line("Press Any Key to continue", 5, 0.3)
   #print("Press Any Key to continue")
